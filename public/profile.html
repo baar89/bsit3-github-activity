@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Profile</title><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'><link rel='stylesheet' href='/css/styles.css'></head>
+<body><div class='container col-md-7'><h2>Profile</h2><div id='flash'></div><div id='current' class='mb-3'></div>
+<form id='form' class='card card-body'>
+<input class='form-control mb-2' name='username' placeholder='New username'>
+<input class='form-control mb-2' name='avatarUrl' placeholder='Avatar URL'>
+<input class='form-control mb-2' name='password' type='password' placeholder='New password'>
+<button class='btn btn-primary'>Save Changes</button></form></div>
+<script src='/js/app.js'></script><script>
+(async()=>{try{await fetchCsrf();const me=await api('/users/me');document.getElementById('current').innerHTML=`
+<img src='${me.avatarUrl}' class='avatar mb-2'><br><b>${me.username}</b><br>Joined: ${new Date(me.joinDate).toLocaleString()}<br>Approved: ${me.approved}`;}
+catch(e){setFlash(e.message,'danger')}})();
+document.getElementById('form').addEventListener('submit', async (e)=>{e.preventDefault();const payload=Object.fromEntries(new FormData(e.target).entries());
+Object.keys(payload).forEach(k=>!payload[k]&&delete payload[k]);try{await fetchCsrf();await api('/users/me',{method:'PATCH',body:JSON.stringify(payload)});setFlash('Updated','success');}
+catch(err){setFlash(err.message,'danger')}})
+</script></body></html>

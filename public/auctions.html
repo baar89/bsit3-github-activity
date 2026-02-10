@@ -1,0 +1,17 @@
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Auctions</title><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'><link rel='stylesheet' href='/css/styles.css'></head>
+<body><div class='container'><h2>Auction List</h2><div id='flash'></div>
+<div class='row g-2 mb-3'>
+<div class='col'><input id='search' class='form-control' placeholder='Search'></div>
+<div class='col'><input id='minPrice' class='form-control' type='number' placeholder='Min price'></div>
+<div class='col'><input id='maxPrice' class='form-control' type='number' placeholder='Max price'></div>
+<div class='col'><select id='sort' class='form-select'><option value='endingSoon'>Ending soon</option><option value='highestValue'>Highest value</option><option value='newest'>Newest</option></select></div>
+<div class='col'><button class='btn btn-primary w-100' onclick='loadAuctions(1)'>Apply</button></div></div>
+<div class='row g-3' id='list'></div><div class='mt-3 d-flex gap-2'><button class='btn btn-outline-secondary' id='prev'>Prev</button><button class='btn btn-outline-secondary' id='next'>Next</button></div></div>
+<script src='/js/app.js'></script><script>
+let page=1,totalPages=1;
+const render=(a)=>`<div class='col-md-4'><div class='card card-body'><h5>${a.title}</h5><p>${a.robloxItemName}</p><p>Current: $${a.currentBid}</p><p class='countdown' data-end='${a.endTime}'>${countdownLabel(a.endTime)}</p><a href='/auction-detail?id=${a._id}' class='btn btn-sm btn-primary'>Details</a></div></div>`;
+async function loadAuctions(p){page=p;const params=new URLSearchParams({page,search:search.value,minPrice:minPrice.value,maxPrice:maxPrice.value,sort:sort.value});
+try{const data=await api(`/auctions?${params}`);totalPages=data.totalPages||1;list.innerHTML=data.auctions.map(render).join('');}catch(e){setFlash(e.message,'danger')}}
+prev.onclick=()=>page>1&&loadAuctions(page-1);next.onclick=()=>page<totalPages&&loadAuctions(page+1);loadAuctions(1);setInterval(()=>document.querySelectorAll('.countdown').forEach(el=>el.textContent=countdownLabel(el.dataset.end)),1000);
+</script></body></html>
