@@ -1,0 +1,10 @@
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Pending Approvals</title><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'><link rel='stylesheet' href='/css/styles.css'></head>
+<body><div class='container'><h2>Pending User Approvals</h2><div id='flash'></div><table class='table'><thead><tr><th>Username</th><th>Email</th><th>Action</th></tr></thead><tbody id='rows'></tbody></table></div>
+<script src='/js/app.js'></script><script>
+const actionBtn=(id,a)=>`<button class='btn btn-sm btn-${a==='approve'?'success':a==='reject'?'warning':'danger'} me-1' onclick="updateStatus('${id}','${a}')">${a}</button>`;
+async function load(){try{await fetchCsrf();const data=await api('/admin/pending-users');rows.innerHTML=data.map(u=>`<tr><td>${u.username}</td><td>${u.email}</td><td>${actionBtn(u._id,'approve')}${actionBtn(u._id,'reject')}${actionBtn(u._id,'ban')}</td></tr>`).join('');}
+catch(e){setFlash(e.message,'danger')}}
+async function updateStatus(id,action){try{await fetchCsrf();await api(`/admin/users/${id}/status`,{method:'PATCH',body:JSON.stringify({action})});setFlash('Updated','success');load();}catch(e){setFlash(e.message,'danger')}}
+load();
+</script></body></html>
